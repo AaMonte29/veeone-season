@@ -2,7 +2,13 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="veeOne">
+<meta name="format-detection" content="telephone=no">
 <title>veeOne Season</title>
 <style>
   :root {
@@ -26,6 +32,8 @@
   }
   }
   * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+  button, a, select, input, label { touch-action: manipulation; } /* no double-tap zoom delay */
   body {
     margin: 0;
     background: var(--bg);
@@ -160,6 +168,7 @@
   .pomvp { padding: 12px 16px; }
   .pomvp-name { font-size: 20px; font-weight: 700; margin: 2px 0; }
   .award.aw-cmvp, .award.aw-fmvp { background: #fde9b8; border-color: #c48a00; }
+  .segmented { display: inline-flex; gap: 6px; flex-wrap: wrap; }
   .confirmbox { margin: 4px 0 10px; padding: 12px 14px; border: 1px solid #f1b5ae; background: #fdf1ef; border-radius: 8px; }
   button.danger { background: #b42318; border-color: #b42318; color: #fff; }
   .small { font-size: 12px; }
@@ -315,6 +324,55 @@
   .boxtable th { cursor: default; position: static; }
   .boxtable td, .boxtable th { padding: 4px 6px; }
   .note { font-size: 13px; margin-top: 5px; line-height: 1.5; }
+  /* Phones: bigger tap targets, full-screen popups, tables that keep the name in view */
+  @media (max-width: 560px) {
+    body { font-size: 15px; padding-bottom: env(safe-area-inset-bottom, 0px); }
+    .bar { padding-left: max(12px, env(safe-area-inset-left)); padding-right: max(12px, env(safe-area-inset-right)); }
+    h1 { font-size: 18px; }
+    .sub { font-size: 12px; }
+    nav { gap: 0; scrollbar-width: none; scroll-snap-type: x proximity; margin-left: -12px; margin-right: -12px; padding: 0 6px; }
+    nav::-webkit-scrollbar { display: none; }
+    nav a { padding: 11px 11px; scroll-snap-align: start; }
+    button, a.btn { min-height: 42px; padding: 9px 14px; }
+    .advance button { min-height: 42px; }
+    input, select, textarea { font-size: 16px !important; min-height: 42px; } /* 16px: iPhones don't zoom in */
+    .simhead { gap: 8px; }
+    .simhead button, .heroacts > * { flex: 1 1 auto; text-align: center; }
+    .segmented { display: flex; width: 100%; }
+    .segmented button { flex: 1 1 0; padding: 9px 6px; }
+    dialog { width: 100vw; max-width: 100vw; height: 100dvh; max-height: 100dvh; margin: 0; inset: 0; border: 0; border-radius: 0; }
+    .dlg { padding: 0 14px calc(24px + env(safe-area-inset-bottom, 0px)); }
+    .dlg > h3, .dlg .mvp:first-of-type { margin-top: 4px; }
+    .close { position: sticky; top: 0; float: none; display: block; margin: 0 -14px 0 auto; width: 48px; height: 48px; font-size: 28px; background: var(--panel); z-index: 3; }
+    .rbars { grid-template-columns: 70px 1fr 58px; gap: 7px 8px; }
+    .mvp { padding: 14px; margin: 12px 0; }
+    .mvphead { gap: 10px; }
+    .trophy { width: 44px; height: 44px; }
+    .mvptitle { font-size: 22px; }
+    .mvptitle.small { font-size: 19px; }
+    .mvp .who { font-size: 20px; }
+    .mvpstat { padding: 6px 10px; min-width: 60px; }
+    .mvpstat .v { font-size: 18px; }
+    .herotitle { font-size: 22px; }
+    .champ-banner .champ-name { font-size: 22px; }
+    .champ-banner button { margin-left: 0; width: 100%; }
+    .feed { max-height: 340px; }
+    .gamecard .teams { font-size: 15px; }
+    .leaders li { padding: 6px 12px; }
+    /* keep the first column (player / team) in view while scrolling a wide table sideways */
+    .tw td:first-child, .tw th:first-child { position: sticky; left: 0; z-index: 1; background: var(--panel); box-shadow: 1px 0 0 var(--line); }
+    .tw th:first-child { z-index: 2; background: var(--panel-2); }
+    .tw tr.mine td:first-child { background: var(--mine); }
+    .tw tr.total td:first-child { background: var(--panel-2); }
+    /* the Advance buttons stay at the bottom of the screen during a game */
+    .advance { position: sticky; bottom: 0; z-index: 4; background: var(--panel); padding: 8px 0 calc(8px + env(safe-area-inset-bottom, 0px)); margin-bottom: -8px; border-top: 1px solid var(--line); }
+    .advance { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 6px; }
+    .advance > span.muted { display: none; }
+    .advance [data-act="adv"] { grid-column: span 2; padding: 8px 2px; font-size: 13px; line-height: 1.15; }
+    .advance [data-act="togglebox"], .advance [data-act="back"] { grid-column: span 5; padding: 8px 4px; font-size: 13px; }
+    .advance [data-act="close"] { grid-column: 1 / -1; }
+    footer { padding: 16px 12px calc(16px + env(safe-area-inset-bottom, 0px)); }
+  }
   .seasonline { margin-top: 10px; }
   .seasonline table td, .seasonline table th { padding: 4px 6px; cursor: default; position: static; }
   .dlg h4 { margin: 14px 0 6px; font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
@@ -336,6 +394,7 @@
       <a data-view="batting">Batting</a>
       <a data-view="pitching">Pitching</a>
       <a data-view="leaders">Leaders</a>
+      <a data-view="alltime">All-Time</a>
       <a data-view="games">Games</a>
     </nav>
   </div>
@@ -514,8 +573,12 @@ function computeLeaders(batters, pitchers) {
 const leagueOf = (row) => (row && row.league) || "";
 function leaderSets(batters, pitchers) {
   const out = {};
-  for (const lg of new Set([...batters, ...pitchers].map(leagueOf))) {
+  const leagues = new Set([...batters, ...pitchers].map(leagueOf));
+  // With two leagues, also the best across both ("_all"): leading both is shown in bold italics.
+  const all = leagues.size > 1 ? computeLeaders(batters, pitchers) : null;
+  for (const lg of leagues) {
     out[lg] = computeLeaders(batters.filter((b) => leagueOf(b) === lg), pitchers.filter((p) => leagueOf(p) === lg));
+    if (all) { out[lg].bat._all = all.bat; out[lg].pit._all = all.pit; }
   }
   return out;
 }
@@ -534,10 +597,17 @@ const teamName = (name, size) => `${teamIcon(name, size)}${esc(name)}`;
 const leagueTitle = (lg) => lg || "League";
 
 // Does this row lead (or tie for the lead in) `key`? `best` is one side of computeLeaders.
+// 0: no; 1: leads its league; 2: leads both leagues.
 function leads(best, row, key, value = row[key]) {
-  return best && best[key] !== undefined && value === best[key] && (!RATE_STATS.has(key) || row.qual);
+  const own = best && best[key] !== undefined && value === best[key] && (!RATE_STATS.has(key) || row.qual);
+  if (!own) return 0;
+  return best._all && best._all[key] === value ? 2 : 1;
 }
-function bold(html, on) { return on ? `<b class="lead">${html}</b>` : html; }
+// Bold when leading the league; bold italics when leading both leagues.
+function bold(html, on) {
+  if (on === 2) return `<b class="lead both"><i>${html}</i></b>`;
+  return on ? `<b class="lead">${html}</b>` : html;
+}
 const boxes = {}; // finished-game box scores fetched from the server, by game id
 
 // Escape text and turn every player name in it into a link to their card.
@@ -656,7 +726,7 @@ const PIT_COLS = (withTeam, withRatings) => [
 ];
 
 // ---------- views ----------
-const ui = { search: "", team: "all", league: "all", qualified: false, ratings: true, role: "all", gameTeam: "all", hideLive: false, showBox: false, confirmNew: false, newGames: 162, newSeed: "" };
+const ui = { allTime: "career", search: "", team: "all", league: "all", qualified: false, ratings: true, role: "all", gameTeam: "all", hideLive: false, showBox: false, confirmNew: false, newGames: 162, newSeed: "" };
 
 function teamOptions(sel) {
   return `<option value="all">All teams</option>` + D.leagues.map((lg) => {
@@ -1080,11 +1150,78 @@ function viewPitching() {
 
 const batLead = (r, c) => leads(leadOf(r, "bat"), r, c.key);
 const pitLead = (r, c) => leads(leadOf(r, "pit"), r, c.key);
-const leadNote = () => `<p class="muted" style="margin-top:4px"><b class="lead">Bold</b> = leads their league.</p>`;
+const leadNote = () => `<p class="muted" style="margin-top:4px"><b class="lead">Bold</b> = leads their league. <b class="lead both"><i>Bold italics</i></b> = leads both leagues.</p>`;
 
 function countNote(n, what) {
   const rule = what === "hitters" ? `3.1 PA per team game (${Math.ceil(3.1 * G)} PA)` : `1 IP per team game (${G} IP)`;
   return `<p class="muted" style="margin-top:8px">${n} ${what}. Qualified: ${rule}.</p>`;
+}
+
+// ---------- all-time leaders ----------
+// Career (regular season, this season so far included), best single seasons, or
+// career postseason. Rate stats need enough playing time: 3.1 PA / 1 IP per team
+// game over the seasons a player played (postseason: 20 PA / 10 IP).
+function allTimeRows(kind, mode) {
+  const isB = kind === "b";
+  const seasons = [];
+  (D.history || []).forEach((h) => {
+    const list = mode === "post" ? (h.playoffs ? (isB ? h.playoffs.batters : h.playoffs.pitchers) : []) : isB ? h.batters : h.pitchers;
+    seasons.push({ season: h.season, rows: list || [], games: h.gamesPerTeam });
+  });
+  if (mode === "post") { if (PO_STATS) seasons.push({ season: D.seasonNumber, rows: isB ? PO_STATS.batters : PO_STATS.pitchers, games: 0, now: true }); }
+  else seasons.push({ season: D.seasonNumber || 1, rows: isB ? D.batters : D.pitchers, games: G, now: true });
+
+  const derive = (x, games) => {
+    isB ? deriveBatter(x, 0) : derivePitcher(x, 0);
+    x.qual = mode === "post" ? (isB ? x.pa >= 20 : x.outs >= 30) : games > 0 && (isB ? x.pa >= 3.1 * games : x.outs >= 3 * games);
+    return x;
+  };
+  if (mode === "season") {
+    return seasons.flatMap((se) => se.rows.filter((r) => r.g > 0).map((r) =>
+      derive({ ...r, label: `Season ${se.season}${se.now && SIM.phase === "regular" ? " (so far)" : ""}` }, se.games)));
+  }
+  const byName = {};
+  seasons.forEach((se) => se.rows.forEach((r) => {
+    if (!r.g) return;
+    const t = byName[r.name] || (byName[r.name] = { name: r.name, team: r.team, seasons: 0, games: 0 });
+    SUMMABLE.forEach((k) => (t[k] = (t[k] || 0) + (r[k] || 0)));
+    t.team = r.team; t.seasons += 1; t.games += se.games;
+  }));
+  return Object.values(byName).map((t) => derive({ ...t, label: `${t.seasons} season${t.seasons === 1 ? "" : "s"}` }, t.games));
+}
+
+function viewAllTime() {
+  const mode = ui.allTime;
+  const tabs = [["career", "Career"], ["season", "Single season"], ["post", "Postseason career"]]
+    .map(([k, label]) => `<button class="${k === mode ? "primary" : ""}" data-act="alltime" data-mode="${k}">${label}</button>`).join("");
+  const batters = allTimeRows("b", mode), pitchers = allTimeRows("p", mode);
+  const board = (title, rows, key, fmt, asc = false, rate = false) => {
+    const pool = rows.filter((r) => isFinite(r[key]) && (!rate || r.qual) && (asc || r[key] > 0));
+    const top = pool.sort((a, b) => (asc ? a[key] - b[key] : b[key] - a[key])).slice(0, 10);
+    const list = top.length
+      ? `<ol>${top.map((r, i) => `<li><span class="n">${i + 1}</span><span class="who">${nameLink(r.name)} <span class="tm">${esc(r.label)}${mode === "season" ? " &middot; " + esc(r.team) : ""}</span></span><span class="val">${i === 0 ? `<b>${fmt(r[key])}</b>` : fmt(r[key])}</span></li>`).join("")}</ol>`
+      : `<div class="empty">Nobody yet.</div>`;
+    return `<div class="panel"><h3>${title}</h3>${list}</div>`;
+  };
+  const war = mode === "post" ? "" : null;
+  const note = mode === "career"
+    ? "Regular-season totals over every season played, this one included. AVG, ERA and the other rates need 3.1 PA (or 1 IP) per team game over the seasons the player played."
+    : mode === "season" ? "The best single regular seasons. Rates need 3.1 PA (or 1 IP) per team game that season."
+    : "Totals over every postseason played. Rates need 20 PA (or 10 IP).";
+  return `<div class="simhead"><h2>All-time leaders</h2><div class="segmented">${tabs}</div></div>
+    <p class="muted">${note}</p>
+    <h3 class="subhead">Batting</h3><div class="leaders">
+      ${board("Hits", batters, "h", int)}${board("Home runs", batters, "hr", int)}${board("Runs batted in", batters, "rbi", int)}
+      ${board("Runs", batters, "r", int)}${board("Doubles", batters, "d", int)}${board("Stolen bases", batters, "sb", int)}
+      ${board("Walks", batters, "bb", int)}${board("Batting average", batters, "avg", rate, false, true)}${board("OPS", batters, "ops", rate, false, true)}
+      ${war === null ? board("WAR", batters, "war", dec(1)) : board("On-base %", batters, "obp", rate, false, true)}
+    </div>
+    <h3 class="subhead">Pitching</h3><div class="leaders">
+      ${board("Wins", pitchers, "w", int)}${board("Strikeouts", pitchers, "so", int)}${board("Saves", pitchers, "sv", int)}
+      ${board("Innings", pitchers, "outs", ipFmt)}${board("ERA", pitchers, "era", dec(2), true, true)}${board("WHIP", pitchers, "whip", dec(2), true, true)}
+      ${board("Complete games", pitchers, "cg", int)}${board("Shutouts", pitchers, "sho", int)}
+      ${war === null ? board("WAR", pitchers, "war", dec(1)) : board("K per 9", pitchers, "k9", dec(1), false, true)}
+    </div>`;
 }
 
 function viewLeaders() {
@@ -1097,7 +1234,7 @@ function leaderBoards(batters, pitchers) {
   const board = (title, rows, key, fmt, asc = false) => {
     const top = [...rows].filter((p) => isFinite(p[key]) && (asc || p[key] > 0)).sort((a, b) => (asc ? a[key] - b[key] : b[key] - a[key])).slice(0, 10);
     const list = top.length
-      ? `<ol>${top.map((p, i) => `<li><span class="n">${i + 1}</span><span class="who">${playerLink(p)} <span class="tm">${esc(p.team)}</span></span><span class="val">${bold(fmt(p[key]), p[key] === top[0][key])}</span></li>`).join("")}</ol>`
+      ? `<ol>${top.map((p, i) => `<li><span class="n">${i + 1}</span><span class="who">${playerLink(p)} <span class="tm">${esc(p.team)}</span></span><span class="val">${bold(fmt(p[key]), p[key] === top[0][key] && leads(leadOf(p, p.id[0] === "b" ? "bat" : "pit"), p, key))}</span></li>`).join("")}</ol>`
       : `<div class="empty">No qualified players yet.</div>`;
     return `<div class="panel"><h3>${title}</h3>${list}</div>`;
   };
@@ -1699,7 +1836,7 @@ function careerTable(p, isB, current) {
     ? `<tr class="total"><td class="t">Career</td><td></td><td></td><td></td>${cols.map(([key, , fmt]) => `<td>${(fmt || int)(total[key])}</td>`).join("")}<td></td></tr>`
     : "";
   return `<div class="tw seasonline"><table><thead>${head}</thead><tbody>${body}${totals}</tbody></table></div>
-    <p class="muted" style="margin:6px 0 0"><b class="lead">Bold</b> = led the league that season. MVP-2 = finished 2nd in the MVP vote; click an award to see the voting.</p>`;
+    <p class="muted" style="margin:6px 0 0"><b class="lead">Bold</b> = led the league that season; <b class="lead both"><i>bold italics</i></b> = led both leagues. MVP-2 = finished 2nd in the MVP vote; click an award to see the voting.</p>`;
 }
 
 function showPlayer(id) {
@@ -1768,7 +1905,7 @@ function render() {
   let [view, arg] = route.split("/");
   if ((view === "simulate" || view === "home" || view === "playoffs") && !SERVER) view = "standings";
   document.querySelectorAll("#nav a").forEach((a) => a.classList.toggle("on", a.dataset.view === view || (view === "team" && a.dataset.view === "teams") || (view === "box" && a.dataset.view === (+arg >= PLAYOFF_GAME_IDS ? "playoffs" : "games"))));
-  const views = { home: viewHome, simulate: viewSimulate, playoffs: viewPlayoffs, standings: viewStandings, teams: viewTeams, team: () => viewTeam(arg), batting: viewBatting, pitching: viewPitching, leaders: viewLeaders, games: viewGames, box: () => (SERVER ? viewBox(+arg) : viewGames()) };
+  const views = { home: viewHome, simulate: viewSimulate, playoffs: viewPlayoffs, standings: viewStandings, teams: viewTeams, team: () => viewTeam(arg), batting: viewBatting, pitching: viewPitching, leaders: viewLeaders, alltime: viewAllTime, games: viewGames, box: () => (SERVER ? viewBox(+arg) : viewGames()) };
   const searchHadFocus = document.activeElement && document.activeElement.id === "q";
   document.getElementById("app").innerHTML = (views[view] || viewStandings)();
   const q = document.getElementById("q");
@@ -1807,6 +1944,7 @@ document.addEventListener("click", async (e) => {
     else if (kind === "back") { ui.hideLive = true; render(); }
     else if (kind === "togglebox") { ui.showBox = !ui.showBox; render(); }
     else if (kind === "sim") { lastHappened = []; ui.hideLive = false; await api("/api/sim", { days: +act.dataset.days }); }
+    else if (kind === "alltime") { ui.allTime = act.dataset.mode; render(); }
     else if (kind === "startplayoffs") {
       lastHappened = [];
       const out = await api("/api/start-playoffs", {});
