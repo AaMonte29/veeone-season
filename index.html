@@ -202,7 +202,7 @@
   td.drag { cursor: grab; color: var(--muted); font-size: 18px; text-align: center; padding: 0 6px !important; touch-action: none; user-select: none; }
   tr.dragging td { opacity: .45; }
   tr.drop-here td { box-shadow: inset 0 2px 0 var(--accent), inset 0 -2px 0 var(--accent); background: var(--accent-soft) !important; }
-  .rc-svg { width: 100%; max-width: 720px; height: auto; display: block; }
+  .rc-svg { width: 100%; max-width: 520px; height: auto; display: block; }
   .rc-grid { stroke: var(--line); stroke-width: 1; }
   .rc-axis { fill: var(--muted); font-size: 11px; }
   .rc-label { fill: var(--text); font-size: 11px; font-weight: 600; }
@@ -214,7 +214,15 @@
   .rc-chip i { width: 10px; height: 10px; border-radius: 50%; opacity: .35; }
   .rc-chip.on { color: var(--text); border-color: var(--text); }
   .rc-chip.on i { opacity: 1; }
-  .rc-table summary { cursor: pointer; color: var(--muted); font-size: 12px; margin-top: 4px; }
+  .rc-table { margin-top: 6px; width: fit-content; max-width: 100%; }
+  .rc-table table { width: auto; }
+  .rc-table td.rcell { white-space: nowrap; }
+  .rc-table .rv { display: inline-block; min-width: 1.6em; text-align: right; }
+  .rc-table .rd { display: inline-block; min-width: 2.2em; text-align: left; margin-left: 4px; font-size: 11px; font-weight: 600; }
+  .rc-table .rd.up { color: var(--good, #1d7a3a); }
+  .rc-table .rd.down { color: var(--bad, #c2412d); }
+  .rc-table .rd.same { color: var(--muted); }
+  .rc-table tr.rtotal td { border-top: 2px solid var(--line, #ddd); font-weight: 600; }
   .budget { margin: 6px 0 12px; max-width: 640px; }
   .budget-line { font-size: 13px; margin-bottom: 4px; }
   .budget-bar { height: 8px; border-radius: 4px; background: var(--panel-2); overflow: hidden; }
@@ -2016,13 +2024,28 @@ function ratingPoints(p, isB) {
   pts.push({ label: "Now", age: p.age, get: (k) => val(p.ratings, p.ovr, k) });
   return pts;
 }
+// Every rating season by season, newest first, with the change from the season before.
+function ratingChangeTable(pts, series) {
+  const delta = (d) => (d > 0 ? `<span class="rd up">+${d}</span>` : d < 0 ? `<span class="rd down">&minus;${-d}</span>` : `<span class="rd same">&middot;</span>`);
+  const rows = pts.map((pt, i) => {
+    const prev = i ? pts[i - 1] : null;
+    return `<tr><td class="t">${pt.label}</td><td>${pt.age}</td>${series.map(([k]) => {
+      const v = pt.get(k);
+      return `<td class="rcell"><span class="rv">${v}</span>${prev ? delta(v - prev.get(k)) : ""}</td>`;
+    }).join("")}</tr>`;
+  }).reverse().join("");
+  const first = pts[0], last = pts[pts.length - 1];
+  const total = pts.length > 1 ? `<tr class="rtotal"><td class="t">Total</td><td>${first.age}&ndash;${last.age}</td>${series.map(([k]) => `<td class="rcell">${delta(last.get(k) - first.get(k))}</td>`).join("")}</tr>` : "";
+  return `<h4>Rating changes by season</h4><div class="panel tw rc-table"><table><thead><tr><th class="t">Season</th><th>Age</th>${series.map(([, l]) => `<th>${l}</th>`).join("")}</tr></thead>
+    <tbody>${rows}${total}</tbody></table></div>`;
+}
 function ratingChart(p, isB) {
   chartFor = { p, isB };
   const kind = isB ? "b" : "p";
   const series = RATING_SERIES[kind];
   const pts = ratingPoints(p, isB);
   if (pts.length < 2) {
-    return `<div id="rchart" class="muted">The graph fills in as seasons go by: each season's ratings are saved when it ends.</div>`;
+    return `<div id="rchart"><p class="muted">The graph and the season-by-season changes fill in as seasons go by: each season's ratings are saved when it ends.</p>${ratingChangeTable(pts, RATING_SERIES[isB ? "b" : "p"])}</div>`;
   }
   ui.ratingHide = ui.ratingHide || {};
   const shown = series.filter(([k]) => (ui.ratingHide[k] === undefined ? DEFAULT_SHOWN[kind].includes(k) : !ui.ratingHide[k]));
@@ -2057,8 +2080,7 @@ function ratingChart(p, isB) {
     const on = shown.some(([kk]) => kk === k);
     return `<button class="rc-chip ${on ? "on" : ""}" data-act="rtoggle" data-key="${k}"><i style="background:${SERIES_COLORS[i]}"></i>${label}</button>`;
   }).join("");
-  const table = `<details class="rc-table"><summary>Show as a table</summary><div class="tw"><table><thead><tr><th class="t">Season</th><th>Age</th>${series.map(([, l]) => `<th>${l}</th>`).join("")}</tr></thead>
-    <tbody>${pts.map((pt) => `<tr><td class="t">${pt.label}</td><td>${pt.age}</td>${series.map(([k]) => `<td>${pt.get(k)}</td>`).join("")}</tr>`).join("")}</tbody></table></div></details>`;
+  const table = ratingChangeTable(pts, series);
   return `<div id="rchart"><div class="rc-chips">${chips}</div>
     <svg viewBox="0 0 ${W} ${H}" class="rc-svg" role="img" aria-label="Ratings by season">${grid}${xs}${lines}${ends}${hits}</svg>${table}</div>`;
 }
