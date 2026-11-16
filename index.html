@@ -460,6 +460,53 @@
     .advance [data-act="close"] { grid-column: 1 / -1; }
     footer { padding: 16px 12px calc(16px + env(safe-area-inset-bottom, 0px)); }
   }
+  /* bottom tab bar (phones only) and hub pages */
+  #tabbar { display: none; }
+  .hub { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); }
+  .hub-item { position: relative; display: flex; flex-direction: column; gap: 2px; padding: 14px 40px 14px 16px; color: var(--text); }
+  .hub-item:hover { text-decoration: none; border-color: var(--accent); }
+  .hub-item b { font-size: 16px; }
+  .hub-item .muted { font-size: 13px; }
+  .hub-go { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 26px; color: var(--muted); }
+  .tn-abbr { display: none; }
+  .help-toggle { display: none; }
+  .board-more { display: none; }
+  a.btn { display: inline-flex; align-items: center; justify-content: center; text-align: center; }
+  @media (max-width: 560px) {
+    #nav { display: none; }
+    body.has-tabbar #tabbar { display: grid; grid-template-columns: repeat(5, 1fr); position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
+      background: var(--panel); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom, 0px); box-shadow: 0 -2px 8px rgba(16,24,40,.06); }
+    #tabbar { margin: 0 !important; padding-left: 0 !important; padding-right: 0 !important; gap: 0 !important; overflow: visible; scroll-snap-type: none; }
+    #tabbar a { border-bottom: 0 !important; scroll-snap-align: none; display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 7px 2px 8px; font-size: 11px; color: var(--muted); font-weight: 600; }
+    #tabbar a .ti { font-size: 19px; line-height: 1.1; }
+    #tabbar a.on { color: var(--accent); }
+    #tabbar a:hover { text-decoration: none; }
+    body.has-tabbar { padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px)); }
+    body.has-tabbar .advance { bottom: calc(58px + env(safe-area-inset-bottom, 0px)); }
+    .bar { padding-bottom: 10px; }
+    .heroacts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .heroacts > * { width: 100%; min-width: 0; box-sizing: border-box; white-space: normal; }
+    .cards { grid-template-columns: 1fr 1fr !important; gap: 8px; }
+    .card { padding: 10px 12px; }
+    .card .v { font-size: 19px; }
+    .tn-full { display: none; }
+    .tn-abbr { display: inline; }
+    .linescore td, .linescore th { padding: 4px 3px; font-size: 13px; }
+    .help-toggle { display: inline-flex; min-height: 34px; padding: 4px 12px; font-size: 13px; margin: 0 0 8px; }
+    .help .help-body { display: none; }
+    .help.open .help-body { display: block; }
+    .leaders .board ol li:nth-child(n+6) { display: none; }
+    .leaders .board.open ol li { display: flex; }
+    .board-more { display: inline-flex; float: right; min-height: 0; padding: 2px 10px; font-size: 11px; }
+    select.lu-pos { width: auto; min-width: 62px; max-width: 108px; }
+    .offtable select { max-width: 150px; }
+    .offtable .small-btn, .lu-table select, .lu-table select.lu-pos { min-height: 36px; }
+    .gamecard:not(.mine) { padding: 10px 12px; gap: 4px; }
+    .gamecard:not(.mine) .actions > span.small { display: none; }
+    .games { gap: 8px; }
+    .simhead h2 { font-size: 18px; }
+    h2 { font-size: 17px; }
+  }
   .seasonline { margin-top: 10px; }
   a.gl-link { font-weight: 600; }
   .gl-back { margin-bottom: 10px; }
@@ -495,6 +542,13 @@
     </nav>
   </div>
 </header>
+<nav id="tabbar" class="hidden" aria-label="Sections">
+  <a data-view="home"><span class="ti">&#x2302;</span>Home</a>
+  <a data-view="play"><span class="ti">&#x25B6;</span>Play</a>
+  <a data-view="myteam"><span class="ti">&#x2605;</span>My Team</a>
+  <a data-view="stats"><span class="ti">&#x2630;</span>Stats</a>
+  <a data-view="office"><span class="ti">&#x270E;</span>Office</a>
+</nav>
 <main id="app"><p class="muted">Loading&hellip;</p></main>
 <dialog id="player"><div class="dlg" id="player-body"></div></dialog>
 <footer>Ratings use the 20&ndash;80 scouting scale (50 = average). Click any column to sort.</footer>
@@ -1237,6 +1291,39 @@ function budgetPanel() {
     ${b.over.length ? `<p class="muted small">Over the limit now: ${b.over.map((n) => teamLink(n)).join(", ")}</p>` : ""}</div>`;
 }
 
+// ---------- hub pages (phone navigation) ----------
+function hubLinks(items) {
+  return `<div class="hub">${items.filter(Boolean).map(([href, title, sub]) =>
+    `<a class="panel hub-item" href="#${href}"><b>${title}</b><span class="muted">${sub}</span><span class="hub-go">&rsaquo;</span></a>`).join("")}</div>`;
+}
+function viewStatsHub() {
+  return `<h2>Stats</h2>` + hubLinks([
+    ["standings", "Standings", "Both leagues, games back, run differential"],
+    ["teams", "Teams", "Every team's record and numbers"],
+    ["batting", "Batting", "Every hitter: stats and ratings"],
+    ["pitching", "Pitching", "Every pitcher: stats and ratings"],
+    ["leaders", "Leaders", "This season's leaderboards"],
+    ["alltime", "All-Time", "Career, single-season and postseason leaders"],
+    ["games", "Games", "Every result and box score"],
+  ]);
+}
+function viewOfficeHub() {
+  const fa = SIM.freeAgency, off = SIM.offseason, d = SIM.draft;
+  return `<h2>Front office</h2>` + hubLinks([
+    ["lineup", "Lineup &amp; rotation", "Lineups vs L/R, quick lineup, pitching staff"],
+    ["freeagents", "Free agents", fa && fa.open ? `${fa.players.length} available until game ${fa.deadline}` : "Closed until after the season"],
+    ["draft", "Draft", d ? ({ hidden: `Class revealed after game ${d.revealAt}`, scouting: "Scout this year's class", ready: "Ready to start", live: "In progress", done: "Done: see your picks" }[d.status] || "") : ""],
+    off ? ["offseason", "Re-sign players", off.done ? "Done for this offseason" : `${off.players.length} contracts up`] : null,
+    ["myteam", "Contracts &amp; payroll", SIM.budget ? `Payroll ${money(SIM.budget.payrolls[D.playerTeam] || 0)} of ${money(SIM.budget.limit)}` : ""],
+    ["home", "Budget &amp; new game", SIM.budget ? `Budgets are ${SIM.budget.on ? "on" : "off"}` : ""],
+  ]);
+}
+
+// "How it works" text: shown in full on a computer, folded away on a phone.
+function helpText(html) {
+  return `<div class="help"><button class="help-toggle" data-act="help">How it works</button><p class="muted help-body">${html}</p></div>`;
+}
+
 // ---------- my team ----------
 function viewMyTeam() {
   const name = D.playerTeam;
@@ -1403,7 +1490,7 @@ function viewAllTime() {
     const list = top.length
       ? `<ol>${top.map((r, i) => `<li><span class="n">${i + 1}</span><span class="who">${nameLink(r.name)} <span class="tm">${esc(r.label)}${mode === "season" ? " &middot; " + esc(r.team) : ""}</span></span><span class="val">${i === 0 ? `<b>${fmt(r[key])}</b>` : fmt(r[key])}</span></li>`).join("")}</ol>`
       : `<div class="empty">Nobody yet.</div>`;
-    return `<div class="panel"><h3>${title}</h3>${list}</div>`;
+    return `<div class="panel board"><h3>${title}<button class="board-more" data-act="boardmore">Top 10</button></h3>${list}</div>`;
   };
   const war = mode === "post" ? "" : null;
   const note = mode === "career"
@@ -1558,8 +1645,8 @@ function viewDraft() {
   }
   if (d.status === "scouting") {
     head = `<div class="simhead"><h2>Season ${D.seasonNumber} draft class</h2></div>
-      <p class="muted">Scout the class now; the draft is held after the playoffs (${d.rounds} rounds, worst record picks first). ${picks} by the standings so far.
-      Prospects are 16&ndash;18, so most are raw: look at their potential and amateur numbers. Click a name for ratings.</p>`;
+      ${helpText(`Scout the class now; the draft is held after the playoffs (${d.rounds} rounds, worst record picks first). ${picks} by the standings so far.
+      Prospects are 16&ndash;18, so most are raw: look at their potential and amateur numbers. Click a name for ratings.`)}`;
   } else if (d.status === "ready") {
     head = `<div class="simhead"><h2>Season ${D.seasonNumber} draft</h2>
       <button class="primary" data-act="draftstart" ${dis}>Start the draft</button></div>
@@ -1624,9 +1711,9 @@ function viewOffseason() {
   return err + `<div class="simhead"><h2>Season ${D.seasonNumber} offseason: re-sign your players</h2>
       ${draftOpen ? `<a class="btn" href="#draft">Finish the draft first</a>` : ""}
       <button class="primary" data-act="resigndone" ${dis}>Done re-signing: on to free agency</button></div>
-    <p class="muted">These players' contracts end after this season. Re-sign them at what they're asking, or let them go.
+    ${helpText(`These players' contracts end after this season. Re-sign them at what they're asking, or let them go.
       A player you let go is replaced by your best prospect who can play his spot (or a replacement-level signing),
-      and other teams may sign him. Everyone else stays under contract.</p>
+      and other teams may sign him. Everyone else stays under contract.`)}
     ${budgetMeter(off.payrollNext, "Next season so far")}
     <div class="cards offcards">
       <div class="panel card"><div class="k">Payroll this season</div><div class="v">${money(off.payrollNow)}</div></div>
@@ -1653,7 +1740,7 @@ const playsCell = (x) => (x.primary ? `${esc(x.primary)}${x.secondary && x.secon
 
 // The draft line in a player's bio, e.g. "Draft: Season 1 class, round 1 (pick 4) by Hawks".
 function draftBio(drafted) {
-  if (!drafted) return "Draft: undrafted (in the league before its first draft, or signed as a free agent)";
+  if (!drafted) return "Draft: undrafted";
   const m = /^Season (\d+), round (\d+), pick (\d+) by (.+)$/.exec(drafted);
   return m ? `Draft: Season ${m[1]} class &middot; round ${m[2]}, pick ${m[3]} &middot; by ${teamLink(m[4])}` : `Draft: ${esc(drafted)}`;
 }
@@ -1754,8 +1841,9 @@ function viewFreeAgents() {
     : `<p class="muted">No free agents left.</p>`;
   return err + `<div class="simhead"><h2>Free agents</h2>
       ${SIM.phase === "done" ? `<button class="primary" data-act="nextseason" ${dis}>Start season ${D.seasonNumber + 1}</button>` : ""}</div>
-    <p class="muted">Players nobody re-signed or signed. ${openText} Click a name to see his profile and past seasons. Sign one onto your roster (the player
-      he replaces goes to your prospects list) or straight to your prospects list.</p>
+    <p class="muted small">${openText}</p>
+    ${helpText(`Players nobody re-signed or signed. Click a name to see his profile and past seasons. Sign one onto your roster (the player
+      he replaces goes to your prospects list) or straight to your prospects list.`)}
     ${SIM.budget ? budgetMeter(SIM.budget.payrolls[D.playerTeam] || 0) : ""}
     <div class="fa-layout"><div class="fa-main">${table}</div><aside class="fa-side">${rosterPanel()}</aside></div>`;
 }
@@ -1781,7 +1869,7 @@ function lineupTable(hand) {
     const st = seasonLine(x.name, true);
     const starter = i < 9;
     const posCell = starter
-      ? `<select class="lu-pos ${positionFit(x, x.slotPos)}" data-hand="${hand}" data-i="${i}" ${dis} title="${positionFit(x, x.slotPos) === "pos-out" ? "Out of position: a big fielding penalty" : positionFit(x, x.slotPos) ? "A secondary position: a slight fielding penalty" : "His position"}">${LINEUP_POSITIONS.map((pos) => `<option value="${pos}" ${pos === x.slotPos ? "selected" : ""}>${pos}${positionFit(x, pos) === "pos-out" ? " (out of position)" : positionFit(x, pos) ? " (secondary)" : ""}</option>`).join("")}</select>`
+      ? `<select class="lu-pos ${positionFit(x, x.slotPos)}" data-hand="${hand}" data-i="${i}" ${dis} title="${positionFit(x, x.slotPos) === "pos-out" ? "Out of position: a big fielding penalty" : positionFit(x, x.slotPos) ? "A secondary position: a slight fielding penalty" : "His position"}">${LINEUP_POSITIONS.map((pos) => `<option value="${pos}" ${pos === x.slotPos ? "selected" : ""}>${pos}${positionFit(x, pos) === "pos-out" ? " (out)" : positionFit(x, pos) ? " (2nd)" : ""}</option>`).join("")}</select>`
       : `<span class="muted">${esc(x.pos)}</span>`;
     const num = (v, f = int) => (st && st.g ? f(v) : "-");
     return `<tr class="${starter ? "" : "lu-out"} ${i === 8 ? "lu-last" : ""}" data-drag="lu-${hand}" data-i="${i}">
@@ -1835,10 +1923,10 @@ function viewLineup() {
   const dis = busy ? "disabled" : "";
   return err + `<div class="simhead"><h2>Lineup and pitching staff</h2>
       <button class="primary" data-act="quicklineup" ${dis}>Quick lineup</button></div>
-    <p class="muted">Position menus turn <span class="pos-key pos-2nd">amber</span> at a secondary position (a slight fielding
+    ${helpText(`Position menus turn <span class="pos-key pos-2nd">amber</span> at a secondary position (a slight fielding
       penalty) and <span class="pos-key pos-out">red</span> out of position (a big one). <b>Drag</b> a row by its handle (&#x2807;) to move it: up or down the batting order, or onto a bench player to swap
       them (he takes that spot's position). Change a starter's position with the Pos menu. Everything saves as you go, and
-      each game uses the lineup for the hand of the starter you're facing.</p>
+      each game uses the lineup for the hand of the starter you're facing.`)}
     ${lineupTable("R")}${lineupTable("L")}
     <h2>Pitching staff</h2>
     <p class="muted">Drag pitchers to set the rotation (SP1 starts first), the bullpen (RP1 is the first called on) and the closer.
@@ -1938,7 +2026,8 @@ function ratingChart(p, isB) {
   }
   ui.ratingHide = ui.ratingHide || {};
   const shown = series.filter(([k]) => (ui.ratingHide[k] === undefined ? DEFAULT_SHOWN[kind].includes(k) : !ui.ratingHide[k]));
-  const W = 640, H = 230, L = 34, R = 56, T = 14, B = 26;
+  const phone = window.innerWidth <= 560;
+  const W = phone ? 360 : 640, H = phone ? 210 : 230, L = 30, R = phone ? 50 : 56, T = 12, B = 24;
   const x = (i) => L + (pts.length === 1 ? 0 : (i * (W - L - R)) / (pts.length - 1));
   const y = (v) => T + ((80 - v) * (H - T - B)) / 60;
   const grid = [20, 35, 50, 65, 80].map((v) => `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" class="rc-grid"/><text x="${L - 6}" y="${y(v) + 4}" class="rc-axis" text-anchor="end">${v}</text>`).join("");
@@ -1986,7 +2075,7 @@ function leaderBoards(batters, pitchers) {
     const list = top.length
       ? `<ol>${top.map((p, i) => `<li><span class="n">${i + 1}</span><span class="who">${playerLink(p)} <span class="tm">${esc(p.team)}</span></span><span class="val">${bold(fmt(p[key]), p[key] === top[0][key] && leads(leadOf(p, p.id[0] === "b" ? "bat" : "pit"), p, key))}</span></li>`).join("")}</ol>`
       : `<div class="empty">No qualified players yet.</div>`;
-    return `<div class="panel"><h3>${title}</h3>${list}</div>`;
+    return `<div class="panel board"><h3>${title}<button class="board-more" data-act="boardmore">Top 10</button></h3>${list}</div>`;
   };
   return `<h3 class="subhead">Batting</h3><div class="leaders">
       ${board("Batting average", qb, "avg", rate)}${board("Home runs", batters, "hr", int)}${board("Runs batted in", batters, "rbi", int)}
@@ -2088,9 +2177,9 @@ function viewHome() {
 
   // The player's league table.
   const lg = me ? leagueOf(me) : D.leagues[0];
-  const race = `<table class="mini"><thead><tr><th class="t">Team</th><th>W</th><th>L</th><th>GB</th></tr></thead><tbody>` +
+  const race = `<div class="tw"><table class="mini"><thead><tr><th class="t">Team</th><th>W</th><th>L</th><th>GB</th></tr></thead><tbody>` +
     standings.filter((t) => leagueOf(t) === lg).map((t) => `<tr class="${isMine(t.name) ? "mine" : ""}"><td class="t">${teamLink(t.name)}</td><td>${t.w}</td><td>${t.l}</td><td>${t.gb === 0 ? "-" : t.gb}</td></tr>`).join("") +
-    `</tbody></table>`;
+    `</tbody></table></div>`;
 
   // The player's best players so far, by WAR.
   const top = (rows, n) => rows.filter((r) => r.team === D.playerTeam).sort((a, b) => (b.war || 0) - (a.war || 0)).slice(0, n);
@@ -2262,7 +2351,7 @@ function viewLive(L) {
   const lsHead = `<tr><th class="t"></th>${Array.from({ length: innings }, (_, i) => `<th>${i + 1}</th>`).join("")}<th>R</th><th>H</th><th>E</th></tr>`;
   const lsRow = (side) => {
     const t = L[side];
-    return `<tr><td class="t"><b>${teamName(t.name)}</b>${isMine(t.name) ? ` <span class="tag mine">You</span>` : ""}</td>${Array.from({ length: innings }, (_, i) => `<td>${cell(L.lineScore[side][i])}</td>`).join("")}<td class="rh">${t.runs}</td><td class="rh">${t.hits}</td><td class="rh">${t.errors ?? 0}</td></tr>`;
+    return `<tr><td class="t"><b>${teamIcon(t.name)}<span class="tn-full">${esc(t.name)}</span><span class="tn-abbr">${esc((byTeam[t.name] && byTeam[t.name].abbr) || t.name)}</span></b>${isMine(t.name) ? ` <span class="tag mine">You</span>` : ""}</td>${Array.from({ length: innings }, (_, i) => `<td>${cell(L.lineScore[side][i])}</td>`).join("")}<td class="rh">${t.runs}</td><td class="rh">${t.hits}</td><td class="rh">${t.errors ?? 0}</td></tr>`;
   };
   const dots = (cls, n, max, label) => `<div class="dots ${cls}"><b>${label}</b>${Array.from({ length: max }, (_, i) => `<i class="${i < n ? "on" : ""}"></i>`).join("")}</div>`;
   const runners = ["1st", "2nd", "3rd"].map((b, i) => (L.bases[i] ? `${b}: ${nameLink(L.bases[i])}` : null)).filter(Boolean).join(" &middot; ");
@@ -2334,7 +2423,7 @@ function renderBox(box) {
     ["away", "home"].map((k) => {
       const b = box[k];
       const byInning = box.lines ? box.lines[k] : [];
-      return `<tr><td class="t"><b>${esc(b.team)}</b></td>${Array.from({ length: innings }, (_, i) => `<td>${byInning[i] ?? ""}</td>`).join("")}<td class="rh">${b.runs}</td><td class="rh">${b.hits}</td><td class="rh">${b.errors ?? 0}</td><td>${b.lob}</td></tr>`;
+      return `<tr><td class="t"><b><span class="tn-full">${esc(b.team)}</span><span class="tn-abbr">${esc((byTeam[b.team] && byTeam[b.team].abbr) || b.team)}</span></b></td>${Array.from({ length: innings }, (_, i) => `<td>${byInning[i] ?? ""}</td>`).join("")}<td class="rh">${b.runs}</td><td class="rh">${b.hits}</td><td class="rh">${b.errors ?? 0}</td><td>${b.lob}</td></tr>`;
     }).join("") + `</tbody></table></div>`;
 
   const notes = (items) => items.filter((x) => x).map((x) => `<div class="note">${x}</div>`).join("");
@@ -2781,12 +2870,18 @@ function go(to) {
   render();
   window.scrollTo(0, 0);
 }
+const SECTION_OF = { home: "home", simulate: "play", playoffs: "play", play: "play", box: "play", myteam: "myteam", lineup: "myteam",
+  team: "stats", stats: "stats", standings: "stats", teams: "stats", batting: "stats", pitching: "stats", leaders: "stats", alltime: "stats", games: "stats",
+  office: "office", draft: "office", freeagents: "office", offseason: "office" };
 function render() {
   if (!D) return;
   let [view, arg] = route.split("/");
-  if ((view === "simulate" || view === "home" || view === "playoffs" || view === "draft" || view === "offseason" || view === "freeagents" || view === "lineup" || view === "myteam") && !SERVER) view = "standings";
+  if ((view === "simulate" || view === "home" || view === "playoffs" || view === "draft" || view === "offseason" || view === "freeagents" || view === "lineup" || view === "myteam" || view === "play" || view === "office") && !SERVER) view = "standings";
+  const section = SECTION_OF[route.split("/")[0]] || "home";
+  document.querySelectorAll("#tabbar a").forEach((a) => a.classList.toggle("on", a.dataset.view === section));
   document.querySelectorAll("#nav a").forEach((a) => a.classList.toggle("on", a.dataset.view === view || (view === "team" && a.dataset.view === "teams") || (view === "box" && a.dataset.view === (+arg >= PLAYOFF_GAME_IDS ? "playoffs" : "games"))));
-  const views = { home: viewHome, simulate: viewSimulate, playoffs: viewPlayoffs, standings: viewStandings, teams: viewTeams, team: () => viewTeam(arg), batting: viewBatting, pitching: viewPitching, leaders: viewLeaders, alltime: viewAllTime, draft: viewDraft, offseason: viewOffseason, freeagents: viewFreeAgents, lineup: viewLineup, myteam: viewMyTeam, games: viewGames, box: () => (SERVER ? viewBox(+arg) : viewGames()) };
+  const views = { home: viewHome, simulate: viewSimulate, playoffs: viewPlayoffs, standings: viewStandings, teams: viewTeams, team: () => viewTeam(arg), batting: viewBatting, pitching: viewPitching, leaders: viewLeaders, alltime: viewAllTime, draft: viewDraft, offseason: viewOffseason, freeagents: viewFreeAgents, lineup: viewLineup, myteam: viewMyTeam, stats: viewStatsHub, office: viewOfficeHub,
+    play: () => (SIM.playoffs || SIM.phase === "postseason" ? viewPlayoffs() : viewSimulate()), games: viewGames, box: () => (SERVER ? viewBox(+arg) : viewGames()) };
   const searchHadFocus = document.activeElement && document.activeElement.id === "q";
   document.getElementById("app").innerHTML = (views[view] || viewStandings)();
   const q = document.getElementById("q");
@@ -2833,6 +2928,8 @@ document.addEventListener("click", async (e) => {
       if (sel && sel.value) await api("/api/call-up", { prospect: act.dataset.name, replace: sel.value });
     }
     else if (kind === "prospect") { showProspect(act.dataset.name); }
+    else if (kind === "help") { act.closest(".help").classList.toggle("open"); return; }
+    else if (kind === "boardmore") { act.closest(".panel").classList.toggle("open"); act.textContent = act.closest(".panel").classList.contains("open") ? "Top 5" : "Top 10"; return; }
     else if (kind === "budget") { await api("/api/budget", { on: act.dataset.on === "1" }); }
     else if (kind === "quicklineup") { await api("/api/lineup-auto", {}); }
     else if (kind === "rtoggle") {
@@ -2899,6 +2996,8 @@ document.addEventListener("click", async (e) => {
   }
   const card = e.target.closest("[data-team]");
   if (card) { go("team/" + card.dataset.team); return; }
+  const tab = e.target.closest("#tabbar a");
+  if (tab) { go(tab.dataset.view); return; }
   const nav = e.target.closest("#nav a");
   if (nav) { go(nav.dataset.view); return; }
 });
@@ -3006,6 +3105,8 @@ if (SERVER) {
   document.getElementById("nav-draft").classList.remove("hidden");
   document.getElementById("nav-lineup").classList.remove("hidden");
   document.getElementById("nav-myteam").classList.remove("hidden");
+  document.getElementById("tabbar").classList.remove("hidden");
+  document.body.classList.add("has-tabbar");
   if (IN_BROWSER) {
     bootEngine().then(() => api("/api/state")).then(() => { if (bootNotice) { errorText = bootNotice; render(); } }).catch((e) => {
       console.error(e);
