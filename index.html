@@ -568,6 +568,7 @@
   .ap { font: inherit; font-size: 12px; padding: 2px 9px; border-radius: 12px; border: 1px solid var(--line); background: var(--panel); color: var(--muted); cursor: pointer; white-space: nowrap; }
   .ap.on { background: #e6effb; border-color: #9dbbe6; color: #2a5aa8; font-weight: 600; }
   .ap:disabled { opacity: .6; cursor: default; }
+  .ap-short { display: none; } /* (phones: the short label, see the narrow-screen rules) */
   .health-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 14px; margin: 6px 0 18px; align-items: start; }
   .health-grid > .panel { padding: 0; overflow: hidden; }
   .health-grid h3 { margin: 0; padding: 10px 14px 8px; font-size: 15px; display: flex; align-items: baseline; gap: 8px; }
@@ -796,6 +797,10 @@
     nav a { padding: 11px 11px; scroll-snap-align: start; }
     button, a.btn { min-height: 42px; padding: 9px 14px; }
     .advance button { min-height: 42px; }
+    /* lineup rows stay short: a small rest pill with a short label */
+    button.ap { min-height: 24px; padding: 1px 8px; font-size: 11px; line-height: 1.3; }
+    .ap .ap-long, .tag.tired .ap-long { display: none; }
+    .ap .ap-short, .tag.tired .ap-short { display: inline; }
     input, select, textarea { font-size: 16px !important; min-height: 42px; } /* 16px: iPhones don't zoom in */
     .simhead { gap: 8px; }
     .simhead button, .heroacts > * { flex: 1 1 auto; text-align: center; }
@@ -881,7 +886,8 @@
     .lu-tools .lu-btns { width: 100%; order: 4; }
     .lu-how { font-size: 12px; }
     .lu-tools .lu-btns button { flex: 1 1 0; }
-    table.lu-t td.nm { min-width: 0; max-width: 112px; white-space: normal; }
+    table.lu-t td.nm { min-width: 0; max-width: 150px; white-space: normal; }
+    table.lu-t td.nm > a { white-space: nowrap; } /* (one line per name: the table scrolls sideways) */
     table.lu-t td.nm .sub2 { font-size: 11px; }
     table.lu-t .lu-b, table.lu-t td.drag, table.lu-t tr > th:first-child { display: none; }
     table.lu-t td, table.lu-t th { padding: 7px 5px; }
@@ -1281,7 +1287,7 @@ function energyLine(p) {
   return `<div class="muted" style="margin-top:6px">Energy ${energyBar(e)} ${note} <span class="small">(DUR ${p.ratings.dur}: how fast he tires and how often he gets hurt)</span></div>`;
 }
 const apButton = (x) => `<button class="ap ${x.alwaysPlay ? "on" : ""}" data-act="alwaysplay" data-name="${esc(x.name)}" data-on="${x.alwaysPlay ? 0 : 1}" ${busy ? "disabled" : ""}
-  title="${x.alwaysPlay ? "Plays every game, however tired (more injury risk). Click to let him rest when he's worn out." : "Sits when he's worn out. Click to play him every day."}">${x.alwaysPlay ? "Every day" : "Auto rest"}</button>`;
+  title="${x.alwaysPlay ? "Plays every game, however tired (more injury risk). Click to let him rest when he's worn out." : "Sits when he's worn out. Click to play him every day."}">${x.alwaysPlay ? `<span class="ap-long">Every day</span><span class="ap-short">Daily</span>` : `<span class="ap-long">Auto rest</span><span class="ap-short">Rest</span>`}</button>`;
 
 // The injured list for a team (every team's page); `always`: show it even if empty.
 function ilPanel(name, always = false) {
@@ -3048,7 +3054,7 @@ function lineupBoards(hand) {
     const fit = positionFit(x, x.slotPos);
     const pos = `<select class="lu-pos ${fit}" data-hand="${hand}" data-i="${i}" ${dis} title="${fit === "pos-out" ? "Out of position: a big fielding penalty" : fit ? "A secondary position: a slight fielding penalty" : "His position"}">${LINEUP_POSITIONS.map((p) => `<option value="${p}" ${p === x.slotPos ? "selected" : ""}>${p}${positionFit(x, p) === "pos-out" ? " (out)" : positionFit(x, p) ? " (2nd)" : ""}</option>`).join("")}</select>`;
     const why = x.injury ? ` &middot; <b class="neg">injured</b>${x.injury.fill ? `: ${esc(x.injury.fill)} plays` : ""}`
-      : needsRest(x) ? ` &middot; <span class="tag tired">sits next game</span>` : "";
+      : needsRest(x) ? ` &middot; <span class="tag tired" title="Worn out: sits next game"><span class="ap-long">sits next game</span><span class="ap-short">sits</span></span>` : "";
     const ap = x.injury ? "" : ` ${apButton(x)}`;
     return `<tr ${pickAttrs(group, i)}>${dragCell}<td class="lu-n">${i + 1}</td><td class="t">${pos}</td>${nameCell(x, playsCell(x) + why + ap)}${hitterCells(x, hand)}</tr>`;
   }).join("");
