@@ -14,9 +14,9 @@
   (function () {
     var t = null;
     try { t = localStorage.getItem("veeone-theme"); } catch (e) {}
-    if (["light", "dark", "navy", "beige", "pink", "purple"].indexOf(t) < 0) t = window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    if (["light", "dark", "navy", "graphite", "gray", "beige", "sage", "pink", "purple"].indexOf(t) < 0) t = window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
     document.documentElement.dataset.theme = t;
-    document.documentElement.dataset.tone = t === "dark" || t === "navy" ? "dark" : "light";
+    document.documentElement.dataset.tone = t === "dark" || t === "navy" || t === "graphite" ? "dark" : "light";
   })();
 </script>
 <style>
@@ -40,8 +40,9 @@
     color-scheme: light;
   }
   /* Themes (picked from the header menu, remembered in this browser): light, dark,
-     dark blue, beige, light pink, light purple. Dark and dark blue share data-tone="dark"
-     (the dark touch-ups below); each theme then sets its own colors. */
+     dark blue, dark gray, gray, beige, sage, light pink, light purple. The dark ones
+     (dark, dark blue, dark gray) share data-tone="dark" (the dark touch-ups below);
+     each theme then sets its own colors. */
   :root[data-tone="dark"] {
     --bg: #12151a; --panel: #1b1f26; --panel-2: #232831; --text: #e6e8eb; --muted: #9aa3b0; --line: #313844;
     --accent: #6ea0ff; --accent-soft: #1e2b43; --mine: #3a3220; --mine-line: #b8962e;
@@ -61,6 +62,22 @@
     --bg: #0c1424; --panel: #132036; --panel-2: #1a2b47; --text: #e3e9f4; --muted: #93a3bf; --line: #24385a;
     --accent: #5aa2ff; --accent-soft: #17305a; --mine: #2e3320; --mine-line: #b8962e;
     --shadow: 0 1px 2px rgba(0, 0, 10, .4), 0 1px 3px rgba(0, 0, 20, .45);
+  }
+  :root[data-theme="graphite"] {
+    --bg: #161616; --panel: #212121; --panel-2: #2b2b2b; --text: #e8e8e8; --muted: #a2a2a2; --line: #383838;
+    --accent: #8fb3f5; --accent-soft: #2a2f38; --mine: #36301f; --mine-line: #b8962e;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 1px 3px rgba(0, 0, 0, .45);
+  }
+  :root[data-theme="gray"] {
+    --bg: #e9eaeb; --panel: #f7f7f7; --panel-2: #e4e5e6; --text: #1f2124; --muted: #66696e; --line: #d4d6d9;
+    --accent: #485568; --accent-soft: #dfe3e9; --mine: #f8ebbd; --mine-line: #cba23c;
+    --shadow: 0 1px 2px rgba(20, 20, 20, .07), 0 1px 3px rgba(20, 20, 20, .09);
+  }
+  :root[data-theme="sage"] {
+    --bg: #edf0e2; --panel: #fafbf4; --panel-2: #e5e9d8; --text: #23271b; --muted: #6a7158; --line: #d7ddc5;
+    --accent: #5b7429; --accent-soft: #e3ebcf; --mine: #f7e9b4; --mine-line: #c9a13c;
+    --good: #2b7a3c; --bad: #b0412b;
+    --shadow: 0 1px 2px rgba(40, 50, 10, .07), 0 1px 3px rgba(40, 50, 10, .09);
   }
   :root[data-theme="pink"] {
     --bg: #fbeef3; --panel: #fffafc; --panel-2: #f8e3eb; --text: #2d1f25; --muted: #85606e; --line: #f0d2dd;
@@ -936,7 +953,10 @@
           <button role="menuitemradio" data-theme-set="light"><span class="swatch" style="--sw-bg:#ffffff;--sw-ac:#2f6fde"></span>Light<span class="chk">&#10003;</span></button>
           <button role="menuitemradio" data-theme-set="dark"><span class="swatch" style="--sw-bg:#1b1f26;--sw-ac:#6ea0ff"></span>Dark<span class="chk">&#10003;</span></button>
           <button role="menuitemradio" data-theme-set="navy"><span class="swatch" style="--sw-bg:#13203a;--sw-ac:#5aa2ff"></span>Dark blue<span class="chk">&#10003;</span></button>
+          <button role="menuitemradio" data-theme-set="graphite"><span class="swatch" style="--sw-bg:#212121;--sw-ac:#8fb3f5"></span>Dark gray<span class="chk">&#10003;</span></button>
+          <button role="menuitemradio" data-theme-set="gray"><span class="swatch" style="--sw-bg:#e4e5e6;--sw-ac:#485568"></span>Gray<span class="chk">&#10003;</span></button>
           <button role="menuitemradio" data-theme-set="beige"><span class="swatch" style="--sw-bg:#efe3c8;--sw-ac:#7a4f1e"></span>Beige<span class="chk">&#10003;</span></button>
+          <button role="menuitemradio" data-theme-set="sage"><span class="swatch" style="--sw-bg:#e5e9d8;--sw-ac:#5b7429"></span>Sage<span class="chk">&#10003;</span></button>
           <button role="menuitemradio" data-theme-set="pink"><span class="swatch" style="--sw-bg:#fde4ec;--sw-ac:#c2386f"></span>Light pink<span class="chk">&#10003;</span></button>
           <button role="menuitemradio" data-theme-set="purple"><span class="swatch" style="--sw-bg:#ebe3fa;--sw-ac:#6b46c1"></span>Light purple<span class="chk">&#10003;</span></button>
         </div>
@@ -4700,14 +4720,17 @@ const THEMES = {
   light: { name: "Light", bg: "#ffffff", ac: "#2f6fde" },
   dark: { name: "Dark", bg: "#1b1f26", ac: "#6ea0ff" },
   navy: { name: "Dark blue", bg: "#13203a", ac: "#5aa2ff" },
+  graphite: { name: "Dark gray", bg: "#212121", ac: "#8fb3f5" },
+  gray: { name: "Gray", bg: "#e4e5e6", ac: "#485568" },
   beige: { name: "Beige", bg: "#efe3c8", ac: "#7a4f1e" },
+  sage: { name: "Sage", bg: "#e5e9d8", ac: "#5b7429" },
   pink: { name: "Light pink", bg: "#fde4ec", ac: "#c2386f" },
   purple: { name: "Light purple", bg: "#ebe3fa", ac: "#6b46c1" },
 };
 function setTheme(t) {
   if (!THEMES[t]) t = "light";
   document.documentElement.dataset.theme = t;
-  document.documentElement.dataset.tone = t === "dark" || t === "navy" ? "dark" : "light";
+  document.documentElement.dataset.tone = t === "dark" || t === "navy" || t === "graphite" ? "dark" : "light";
   try { localStorage.setItem("veeone-theme", t); } catch (e) {}
   document.querySelectorAll("[data-theme-set]").forEach((b) => { b.classList.toggle("on", b.dataset.themeSet === t); b.setAttribute("aria-checked", b.dataset.themeSet === t); });
   const sw = document.getElementById("theme-swatch");
