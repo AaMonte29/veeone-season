@@ -97,6 +97,7 @@
   :root[data-tone="dark"] .daynote.health { background: #2e2616; border-color: #5a4724; }
   :root[data-tone="dark"] .injnow, :root[data-tone="dark"] .confirmbox { background: #351f1c; border-color: #6b3a33; }
   :root[data-tone="dark"] .lu-pros .lu-card-h { background: #262238; }
+  :root[data-tone="dark"] .lu-il .lu-card-h { background: #3a2224; }
   :root[data-tone="dark"] .award { background: var(--mine); color: var(--text); } /* (each award keeps its border color) */
   :root[data-tone="dark"] select.pos-2nd, :root[data-tone="dark"] select.pos-out,
   :root[data-tone="dark"] .pos-key.pos-2nd, :root[data-tone="dark"] .pos-key.pos-out { color: #1b1f24; }
@@ -308,6 +309,7 @@
   .lu-card-h { display: flex; align-items: baseline; justify-content: space-between; gap: 6px 12px; flex-wrap: wrap; padding: 11px 14px 9px; }
   .lu-card-h h3 { margin: 0; font-size: 15px; }
   .lu-pros .lu-card-h { background: #f6f4fe; }
+  .lu-il .lu-card-h { background: #fbe0dd; }
   table.lu-t th { position: static; cursor: default; background: var(--panel-2); }
   table.lu-t td, table.lu-t th { padding: 7px 8px; }
   table.lu-t td.rt { min-width: 36px; padding: 7px 4px; }
@@ -3074,6 +3076,8 @@ const pitcherHead = () => coreHead + (ui.luCols === "stats"
 
 const luCard = (title, note, head, body, extra = "") => `<section class="panel lu-card ${extra}"><div class="lu-card-h"><h3>${title}</h3><span class="muted small">${note}</span></div>
   <div class="tw"><table class="lu-t"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div></section>`;
+// "Hamstring strain · back in about 12 days" (and who's filling in for a regular)
+const ilSub = (x) => `<b class="neg">${esc(x.injury.name)}</b> &middot; back in about ${dayCount(x.injury.days)}${x.injury.fill ? ` &middot; ${esc(x.injury.fill)} fills in` : ""}`;
 const prospectSub = (x) => `${playsCell(x)} &middot; prospect`;
 const emptyRow = (text) => `<tr><td class="t muted lu-empty" colspan="30">${text}</td></tr>`;
 
@@ -3091,13 +3095,15 @@ function lineupBoards(hand) {
   const others = (test, tag) => rows.map((x, i) => [x, i]).filter(([x, i]) => i >= 9 && test(x)).map(([x, i]) =>
     `<tr ${pickAttrs(group, i)}>${dragCell}${nameCell(x, x.prospect ? prospectSub(x) : playsCell(x) + tag(x))}${hitterCells(x, hand)}</tr>`).join("");
   // a regular who isn't in this lineup "sits"; bench players are on the bench anyway
-  const rest = others((x) => !x.prospect, (x) => (x.injury ? ` &middot; <b class="neg">injured list</b>` : "") + (benchNames().has(x.name) ? "" : ` &middot; <b>a regular, sitting</b>`));
+  const rest = others((x) => !x.prospect && !x.injury, (x) => (benchNames().has(x.name) ? "" : ` &middot; <b>a regular, sitting</b>`));
+  const hurt = others((x) => !x.prospect && x.injury, (x) => ` &middot; ${ilSub(x)}`);
   const pros = others((x) => x.prospect, () => "");
   const head = (first) => `<th></th>${first}<th class="t">Player</th>${hitterHead(hand)}`;
   return `<div class="lu-grid">
     ${luCard("Batting order", `vs ${hand === "L" ? "left" : "right"}-handed starters`, head(`<th>#</th><th class="t">Pos</th>`), order)}
     <div class="lu-col">
       ${luCard("Bench", "Not starting in this lineup &middot; tired or injured starters are covered from here", head(""), rest || emptyRow("Everyone on the roster starts."))}
+      ${hurt ? luCard("Injured list", "Back in their old spots when they heal", head(""), hurt, "lu-il") : ""}
       ${luCard("Prospects", "Move one into the order to call him up", head(""), pros || emptyRow("No hitting prospects. Draft some, or sign a free agent to your prospects list."), "lu-pros")}
     </div></div>`;
 }
@@ -3115,6 +3121,9 @@ function staffBoards() {
   const some = (test) => rows.map((x, i) => [x, i]).filter(([x]) => test(x)).map(([x, i]) => row(x, i)).join("");
   const head = `<th></th><th class="t">Role</th><th class="t">Pitcher</th>${pitcherHead()}`;
   const prosHead = `<th></th><th class="t">Pitcher</th>${pitcherHead()}`;
+  // pitchers on the injured list: off the staff, so they can't be moved
+  const ilRows = [...(D.myRoster.injuredPitchers || [])].sort((a, b) => a.injury.days - b.injury.days).map((x) =>
+    `<tr><td></td><td class="t lu-role muted">&ndash;</td>${nameCell(x, ilSub(x))}${pitcherCells(x)}</tr>`).join("");
   return `<div class="lu-grid">
     <div class="lu-col">
       ${luCard("Rotation", "SP1 starts first, then in turn", head, some((x) => !x.prospect && x.role.startsWith("SP")))}
@@ -3122,6 +3131,7 @@ function staffBoards() {
     </div>
     <div class="lu-col">
       ${luCard("Bullpen", "RP1 is the first one called on", head, some((x) => !x.prospect && x.role.startsWith("RP")))}
+      ${ilRows ? luCard("Injured list", "Off the staff until they heal", head, ilRows, "lu-il") : ""}
       ${luCard("Prospects", "Move one onto the staff to call him up", prosHead, some((x) => x.prospect) || emptyRow("No pitching prospects."), "lu-pros")}
     </div></div>`;
 }
