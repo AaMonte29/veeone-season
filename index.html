@@ -836,6 +836,34 @@
   .pp-top > div:first-child { flex: 1; min-width: 220px; }
   .pp-chips { display: flex; gap: 6px; margin-top: 2px; }
   .pp-chips .ovrchip { font-size: 18px; }
+  .pp-chips { align-items: center; flex-wrap: wrap; }
+  .pp-cmpline { margin: 4px 0; }
+  .cmpwrap { max-width: 920px; margin: 0 auto; }
+  .cmpname a, .cmpname { white-space: normal; overflow-wrap: anywhere; }
+  .cmptop { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding-right: 36px; }
+  .cmptitle { flex: 1; text-align: center; font-size: 16px; }
+  .cmppick { margin-top: 10px; }
+  .cmppick input[type=search] { width: 100%; box-sizing: border-box; font-size: 14px; padding: 7px 10px; }
+  .cmphits { display: flex; flex-direction: column; gap: 2px; margin-top: 4px; }
+  .cmphit { text-align: left; padding: 6px 10px; }
+  .cmpnone { padding: 4px 2px; }
+  .cmpquick { margin-top: 6px; line-height: 2; }
+  .cmpchip { padding: 2px 9px; margin: 0 4px 0 0; font-size: 12px; border-radius: 12px; }
+  table.cmptab { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  table.cmptab td { padding: 5px 6px; border-top: 1px solid var(--line); vertical-align: middle; overflow-wrap: anywhere; }
+  table.cmptab td.cl { text-align: right; } table.cmptab td.cr { text-align: left; }
+  table.cmptab td.cm { width: 30%; text-align: center; color: var(--muted); font-size: 13px; }
+  table.cmptab tr.cmpgroup td { text-align: center; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); border-top: none; padding-top: 10px; }
+  table.cmphead td { border-top: none; } .cmpname { font-size: 16px; font-weight: 700; }
+  .cmpwin { color: var(--good); font-weight: 700; background: color-mix(in srgb, var(--good) 14%, transparent); border-radius: 4px; padding: 1px 5px; }
+  .cmpval { display: inline-flex; align-items: center; gap: 6px; width: 100%; }
+  td.cl .cmpval { justify-content: flex-end; }
+  .cmpbar { position: relative; display: inline-block; flex: 0 1 140px; height: 8px; border-radius: 4px; background: var(--panel-2); overflow: hidden; }
+  .cmpbar i { position: absolute; top: 0; bottom: 0; background: var(--accent); border-radius: 4px; }
+  .cmpbar.lft i { right: 0; } .cmpbar.rgt i { left: 0; }
+  .cmpbar i.t1 { background: var(--bad); } .cmpbar i.t2 { background: #e08a3c; } .cmpbar i.t3 { background: #c9a227; } .cmpbar i.t4 { background: #5fae6e; } .cmpbar i.t5 { background: var(--good); }
+  .cmpstathead { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 4px; } .cmpstathead h4 { flex: 1; }
+  @media (max-width: 560px) { table.cmptab td.cm { width: 26%; font-size: 12px; } table.cmptab td { padding: 5px 3px; } .cmpbar { flex-basis: 56px; } .cmpchip { min-height: 30px; padding: 2px 8px; } .cmpname { font-size: 14px; } .cmptitle { order: -1; flex-basis: 100%; text-align: left; } table.cmptab td.cm small { display: block; font-size: 11px; line-height: 1.2; } }
   .pp-now { margin: 10px 0 2px; padding: 8px 12px; border-radius: 8px; background: var(--accent-soft); font-size: 14px; }
   .pp-jump { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin: 14px 0 4px; padding: 8px 0;
     border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
@@ -2732,6 +2760,7 @@ function showProspect(name) {
     <button class="close" onclick="document.getElementById('player').close()" aria-label="Close">&times;</button>
     <h3>${esc(p.name)}${ROOKIES.has(p.name) ? ` <span class="tag rktag" title="Rookie status this season">Rookie</span>` : ""}</h3>
     ${allStarLine(p.name)}
+    <div class="pp-cmpline">${compareButton(p.name)}</div>
     <div class="muted">${esc(p.retired && isB ? p.primary || p.pos : p.pos)} ${p.retired ? "&middot; retired" : p.asking ? "free agent" : "prospect"} &middot; ${isB ? "Bats" : "Throws"} ${p.hand} &middot; ${p.retired ? `Retired after ${yr(p.retired.season)}, at ${p.retired.age}` : `Age ${p.age}`} &middot; ${esc(p.nat)}</div>
     ${p.retired ? `<div class="retired-note"><span class="tx tx-retired">Retired</span> ${esc(p.retired.why)}${p.retired.teams.length ? ` &middot; played for ${p.retired.teams.map((t) => teamLink(t)).join(", ")}` : ""}</div>` : ""}
     ${p.drafted ? `<div class="muted">Drafted: ${esc(draftedText(p.drafted))}</div>` : ""}
@@ -4881,7 +4910,7 @@ function showPlayer(id) {
       <div class="muted">${isB ? p.pos + (p.bench ? " (bench)" : "") : p.role} &middot; ${p.freeAgent ? "Free agent" : teamLink(p.team)} &middot; ${isB ? "Bats" : "Throws"} ${p.hand} &middot; Age ${p.age} &middot; ${esc(p.nat)}</div>
       ${isB ? positionsBio(p) : pitcherBio(p)}
       <div class="muted">${draftBio(p.drafted)}</div>
-    </div><div class="pp-chips"><span class="ovrchip ${ratingClass(p.ovr)}"><small>OVR</small>${p.ovr}</span><span class="ovrchip ${ratingClass(p.pot)}"><small>POT</small>${p.pot}</span></div></div>
+    </div><div class="pp-chips"><span class="ovrchip ${ratingClass(p.ovr)}"><small>OVR</small>${p.ovr}</span><span class="ovrchip ${ratingClass(p.pot)}"><small>POT</small>${p.pot}</span>${compareButton(p.name)}</div></div>
     ${nowBar}
     ${contractLine(p.contract)}${freeAgentLine(p.name)}
     ${injuryNow(p)}${isB && !p.freeAgent ? energyLine(p) : ""}
@@ -4902,6 +4931,206 @@ function showPlayer(id) {
     ${letGo ? `<div class="pp-letgo">${letGo}</div>` : ""}`;
   document.getElementById("player").showModal();
 }
+
+// ---------- compare two players ----------
+// From any profile: the player side by side with another batter (or pitcher):
+// bio and contract, ratings, this season or career, awards, fielding. The better
+// value in each row is highlighted.
+const isBatterObj = (x) => (x.id ? x.id[0] === "b" : x.kind ? x.kind !== "pitcher" : !/^(SP|RP|P)/.test(x.pos || x.role || ""));
+// Everyone of one type: the league's players, minors, prospects, free agents, the draft class, retired players.
+function cmpPool(isB) {
+  const d = SIM.draft || {};
+  const all = [...(isB ? D.batters : D.pitchers), ...Object.values(D.minors || {}).flat(), ...Object.values(D.prospects || {}).flat(),
+    ...((SIM.freeAgency && SIM.freeAgency.players) || []), ...(d.pool || []), ...(D.retired || [])];
+  const seen = new Map();
+  all.forEach((x) => { if (x && x.name && !seen.has(x.name) && isBatterObj(x) === isB) seen.set(x.name, x); });
+  return [...seen.keys()];
+}
+function cmpTeamOf(name, lists) {
+  for (const [team, list] of Object.entries(lists || {})) if (list.some((x) => x.name === name)) return team;
+  return "";
+}
+// One player, gathered from wherever he is now.
+function cmpRec(name, isB) {
+  const a = byName[name] && isBatterObj(byName[name]) === isB ? byName[name] : null;
+  const f = findProspect(name);
+  const p = a ? { ...(f || {}), ...a } : f;
+  if (!p) return null;
+  const minorsTeam = cmpTeamOf(name, D.minors), prosTeam = cmpTeamOf(name, D.prospects);
+  const fa = ((SIM.freeAgency && SIM.freeAgency.players) || []).find((x) => x.name === name);
+  const status = p.retired ? `Retired after ${yr(p.retired.season)}`
+    : minorsTeam ? `${minorsTeam} (minors)` : prosTeam ? `${prosTeam} (prospect)`
+    : fa ? "Free agent" : p.team ? p.team : "Draft class";
+  const list = isB ? D.batters : D.pitchers;
+  const cur = list.find((x) => x.name === name && x.g > 0);
+  const season = cur ? seasonNow(cur) : null;
+  const lines = D.history.map((h) => (isB ? h.batters : h.pitchers).find((x) => x.name === name)).filter((x) => x && x.g > 0);
+  if (cur) lines.push(cur);
+  let career = null;
+  if (lines.length) {
+    career = { positions: {} };
+    [...SUMMABLE, "fch", "fo", "frun"].forEach((k) => (career[k] = lines.reduce((s, l) => s + (l[k] || 0), 0)));
+    lines.forEach((l) => Object.entries(l.positions || {}).forEach(([pos, [g, outs]]) => {
+      const t = career.positions[pos] || (career.positions[pos] = [0, 0]); t[0] += g; t[1] += outs;
+    }));
+    isB ? deriveBatter(career, 0) : derivePitcher(career, 0);
+  }
+  [season, career].forEach((s) => {
+    if (!s) return;
+    if (isB) { s.bbp = div(s.bb, s.pa); s.kp = div(s.so, s.pa); }
+    else { s.bb9 = div(s.bb * 27, s.outs); s.hr9 = div(s.hr * 27, s.outs); s.k9 = div(s.so * 27, s.outs); }
+  });
+  return { p, name, isB, status, season, career, seasons: lines.length, aaa: p.level === "minors" ? p.stats : null };
+}
+function pctFmt(x) { return isFinite(x) ? (x * 100).toFixed(1) + "%" : "-"; }
+const CMP_BAT = [["war", "WAR", dec(1)], ["g", "G"], ["pa", "PA"], ["avg", "AVG", rate], ["obp", "OBP", rate], ["slg", "SLG", rate], ["ops", "OPS", rate],
+  ["h", "H"], ["d", "2B"], ["hr", "HR"], ["rbi", "RBI"], ["r", "R"], ["sb", "SB"], ["bbp", "BB%", pctFmt], ["kp", "K%", pctFmt, true]];
+const CMP_PIT = [["war", "WAR", dec(1)], ["g", "G"], ["gs", "GS"], ["w", "W"], ["l", "L", int, true], ["sv", "SV"], ["outs", "IP", ipFmt],
+  ["era", "ERA", dec(2), true], ["whip", "WHIP", dec(2), true], ["k9", "K/9", dec(1)], ["bb9", "BB/9", dec(1), true], ["hr9", "HR/9", dec(1), true], ["so", "SO"]];
+// One row: left value, label, right value; the better one gets .cmpwin.
+function cmpRow(label, a, b, fmt = int, low = false, compare = true) {
+  const ok = (v) => v !== undefined && v !== null && isFinite(v);
+  let wa = false, wb = false;
+  if (compare && ok(a) && ok(b) && a !== b) { wa = low ? a < b : a > b; wb = !wa; }
+  const cell = (v, w) => `<span class="${w ? "cmpwin" : ""}">${ok(v) ? fmt(v) : "-"}</span>`;
+  return `<tr><td class="cl">${cell(a, wa)}</td><td class="cm">${label}${low && compare ? ` <small class="muted">(lower is better)</small>` : ""}</td><td class="cr">${cell(b, wb)}</td></tr>`;
+}
+const cmpText = (label, a, b) => `<tr><td class="cl">${a || "-"}</td><td class="cm">${label}</td><td class="cr">${b || "-"}</td></tr>`;
+function cmpContract(p) {
+  const c = p.contract;
+  if (c && c.length) {
+    const deal = c.length > 1 && !c[0] ? c.slice(1) : c;
+    return `${money(deal[0])} &times; ${deal.length}`;
+  }
+  return p.asking ? `Asking ${money(p.asking[0])} &times; ${p.asking.length}` : p.retired ? "Retired" : "Unsigned";
+}
+function cmpAwards(name) {
+  const seasons = [...D.history.map((h) => h.season), ...(D.awards ? [D.seasonNumber] : [])];
+  const out = { as: seasons.filter((n) => madeAllStar(n, name)).length };
+  AWARD_ORDER.forEach((key) => (out[key] = seasons.reduce((s, n) => s + awardWinners(n).filter((w) => w.key === key && w.name === name).length, 0)));
+  return out;
+}
+function cmpFielding(s) {
+  if (!s) return null;
+  const pos = Object.entries(s.positions || {}).filter(([k]) => k !== "DH").sort((x, y) => y[1][1] - x[1][1]);
+  return { main: pos.length ? `${pos[0][0]} <span class="muted small">(${ipFmt(pos[0][1][1])} inn)</span>` : s.positions && s.positions.DH ? "DH" : "-",
+    inn: fieldOuts(s.positions), fch: s.fch, fo: s.fo, e: s.e, pct: s.fo !== undefined && s.fo + (s.e || 0) > 0 ? s.fo / (s.fo + (s.e || 0)) : NaN, frun: s.frun };
+}
+function cmpBar(v, side) {
+  const tier = "t" + ratingClass(v).slice(1);
+  return `<span class="cmpbar ${side}"><i class="${tier}" style="width:${Math.max(0, Math.min(100, ((v - 20) / 60) * 100))}%"></i></span>`;
+}
+// Quick picks: his position on your team, and the league's best there this season.
+function cmpQuick(r) {
+  const key = (x) => (r.isB ? x.primary || x.pos : /^SP/.test(x.role || x.pos || "") ? "SP" : "RP");
+  const mine = key(r.p);
+  const same = (r.isB ? D.batters : D.pitchers).filter((x) => x.name !== r.name && key(x) === mine);
+  const yours = same.filter((x) => x.team === D.playerTeam).slice(0, 3);
+  const best = same.filter((x) => x.g > 0 && x.team !== D.playerTeam).sort((x, y) => (y.war || 0) - (x.war || 0)).slice(0, 4);
+  const chip = (x) => `<button class="cmpchip" data-act="cmppick" data-name="${esc(x.name)}">${esc(x.name)}</button>`;
+  if (!yours.length && !best.length) return "";
+  return `<div class="cmpquick muted small">${yours.length ? `<span>Your ${esc(mine)}:</span> ${yours.map(chip).join("")} ` : ""}${best.length ? `<span>Top ${esc(mine)} by WAR:</span> ${best.map(chip).join("")}` : ""}</div>`;
+}
+function cmpMatches(q) {
+  const c = ui.cmp, low = q.trim().toLowerCase();
+  if (!low) return "";
+  const hits = cmpPool(c.isB).filter((n) => n !== c.a && n.toLowerCase().includes(low)).slice(0, 8);
+  if (!hits.length) return `<div class="muted cmpnone">No ${c.isB ? "batter" : "pitcher"} by that name.</div>`;
+  return hits.map((n) => {
+    const r = cmpRec(n, c.isB), p = r ? r.p : {};
+    return `<button class="cmphit" data-act="cmppick" data-name="${esc(n)}"><b>${esc(n)}</b> <span class="muted">${esc(p.primary || p.role || p.pos || "")} &middot; ${r ? esc(r.status) : ""} &middot; OVR ${p.ovr ?? "-"}</span></button>`;
+  }).join("");
+}
+function compareOpen(name) {
+  const x = byName[name] || findProspect(name);
+  if (!x) return;
+  const prev = ui.cmp || {};
+  const isB = isBatterObj(x);
+  ui.cmp = { a: name, b: prev.a === name && prev.isB === isB ? prev.b : null, isB, view: prev.view || "s", q: "" };
+  showCompare();
+  document.getElementById("player").scrollTop = 0;
+}
+// A name that opens a profile, wherever he is.
+const compareButton = (name) => `<button class="small-btn cmpbtn" data-act="compare" data-name="${esc(name)}" title="Put him side by side with another player">&#8646; Compare</button>`;
+function openProfile(name) {
+  const p = byName[name];
+  p ? showPlayer(p.id) : showProspect(name);
+  document.getElementById("player").scrollTop = 0;
+}
+function nameLinkAny(name) { return byName[name] ? nameLink(name) : prospectLink({ name }); }
+function showCompare() {
+  const c = ui.cmp, A = cmpRec(c.a, c.isB), B = c.b ? cmpRec(c.b, c.isB) : null;
+  if (!A) return;
+  const kind = c.isB ? "batter" : "pitcher";
+  const head = (r) => `<div class="cmpname">${nameLinkAny(r.name)}</div><div class="muted small">${esc(r.p.primary || r.p.role || r.p.pos || "")} &middot; ${esc(r.status)}</div>`;
+  const top = `<div class="cmptop"><button class="gl-back" data-act="cmpback">&larr; ${esc(c.a)}</button><b class="cmptitle">Compare players</b>
+    ${B ? `<button class="small-btn" data-act="cmpswap" title="Put ${esc(c.b)} on the left">&#8644; Swap sides</button>` : ""}</div>
+    <div class="cmppick"><input type="search" data-cmpsearch placeholder="Search any ${kind}: on a team, minors, prospects, free agents, retired" value="${esc(c.q || "")}" autocomplete="off" aria-label="Find a ${kind} to compare">
+    <div class="cmphits" id="cmphits">${cmpMatches(c.q || "")}</div>${cmpQuick(A)}</div>`;
+  let body = "";
+  if (!B) {
+    body = `<div class="panel empty-note muted" style="margin-top:12px">Pick a ${kind} above to put next to ${esc(c.a)}.</div>`;
+  } else {
+    const a = A.p, b = B.p, peak = (p) => (p.retired ? p.retired.peak : p.pot);
+    const pos = (p) => (c.isB ? esc(p.primary || p.pos || "") + (p.secondary && p.secondary.length ? `, ${esc(p.secondary.join(", "))}` : "") : esc(p.role || p.pos || ""));
+    const age = (p) => (p.retired ? `${p.retired.age} <span class="muted small">(retired)</span>` : p.age);
+    const bio = cmpRow("OVR", a.ovr, b.ovr) + cmpRow(a.retired || b.retired ? "POT / peak" : "POT", peak(a), peak(b))
+      + cmpText("Age", age(a), age(b)) + cmpText("Status", esc(A.status), esc(B.status)) + cmpText(c.isB ? "Positions" : "Role", pos(a), pos(b))
+      + cmpText(c.isB ? "Bats" : "Throws", esc(a.hand || ""), esc(b.hand || "")) + cmpText("From", esc(a.nat || ""), esc(b.nat || ""))
+      + cmpText("Drafted", a.drafted ? esc(draftedText(a.drafted)) : "Undrafted", b.drafted ? esc(draftedText(b.drafted)) : "Undrafted")
+      + cmpText("Contract", cmpContract(a), cmpContract(b));
+    const ratings = RATING_GROUPS[c.isB ? "b" : "p"].map(([group, items]) => `<tr class="cmpgroup"><td colspan="3">${group}</td></tr>` + items.map(([k, label]) => {
+      const x = (a.ratings || {})[k], y = (b.ratings || {})[k];
+      const wa = x > y, wb = y > x;
+      return `<tr><td class="cl"><span class="cmpval"><span class="${wa ? "cmpwin" : ""}">${x ?? "-"}</span>${x !== undefined ? cmpBar(x, "lft") : ""}</span></td>
+        <td class="cm" title="${RATING_TIPS[k]}">${label}</td><td class="cr"><span class="cmpval">${y !== undefined ? cmpBar(y, "rgt") : ""}<span class="${wb ? "cmpwin" : ""}">${y ?? "-"}</span></span></td></tr>`;
+    }).join("")).join("");
+    const which = c.view === "c" ? "career" : "season";
+    const sa = A[which], sb = B[which];
+    const stats = (c.isB ? CMP_BAT : CMP_PIT).map(([k, label, fmt, low]) => cmpRow(label, sa ? sa[k] : undefined, sb ? sb[k] : undefined, fmt || int, !!low)).join("");
+    const none = (r) => (r[which] ? "" : r.aaa && which === "season"
+      ? `None in the majors &middot; AAA: ${c.isB ? `${rate(r.aaa.avg)}/${rate(r.aaa.obp)}/${rate(r.aaa.slg)}, ${r.aaa.hr} HR` : `${dec(2)(r.aaa.era)} ERA, ${r.aaa.ip} IP`}`
+      : "No games yet");
+    const noteRow = !sa || !sb ? cmpText(`<span class="muted small">${which === "season" ? "This season" : "Career"}</span>`, `<span class="muted small">${none(A)}</span>`, `<span class="muted small">${none(B)}</span>`) : "";
+    const seg = `<span class="segmented cmpseg"><button class="${c.view !== "c" ? "primary" : ""}" data-act="cmpview" data-v="s">${yr(D.seasonNumber)} season</button><button class="${c.view === "c" ? "primary" : ""}" data-act="cmpview" data-v="c">Career</button></span>`;
+    const aw = cmpAwards(c.a), bw = cmpAwards(c.b);
+    const awardRows = [["as", "All-Star"], ...AWARD_ORDER.map((k) => [k, AWARDS[k].label])].filter(([k]) => aw[k] || bw[k]).map(([k, label]) => cmpRow(label, aw[k], bw[k])).join("");
+    let fielding = "";
+    if (c.isB) {
+      const fa = cmpFielding(sa), fb = cmpFielding(sb);
+      if (fa || fb) {
+        fielding = `<h4>Fielding <span class="muted small">(${which === "season" ? yr(D.seasonNumber) : "career"})</span></h4><table class="cmptab">`
+          + cmpText("Main position", fa ? fa.main : "-", fb ? fb.main : "-") + cmpRow("Innings", fa && fa.inn, fb && fb.inn, ipFmt, false, false)
+          + cmpRow("Chances", fa && fa.fch, fb && fb.fch, int, false, false) + cmpRow("Outs", fa && fa.fo, fb && fb.fo, int, false, false)
+          + cmpRow("Errors", fa && fa.e, fb && fb.e, int, true) + cmpRow("Fld%", fa && fa.pct, fb && fb.pct, rate)
+          + cmpRow("Fld runs", fa && fa.frun, fb && fb.frun, (v) => signed(Math.round(v))) + `</table>`;
+      }
+    }
+    body = `<table class="cmptab cmphead"><tr><td class="cl">${head(A)}</td><td class="cm">vs</td><td class="cr">${head(B)}</td></tr></table>
+      <h4>Bio and contract</h4><table class="cmptab">${bio}</table>
+      <h4>Ratings${a.retired || b.retired ? ` <span class="muted small">(a retired player's are from when he retired)</span>` : ""}</h4><table class="cmptab">${ratings}</table>
+      <div class="cmpstathead"><h4>${c.isB ? "Batting" : "Pitching"}</h4>${seg}</div>
+      <table class="cmptab">${noteRow}${stats}</table>
+      ${which === "career" ? `<div class="muted small">Career: ${A.seasons} season${A.seasons === 1 ? "" : "s"} vs ${B.seasons} in this league, regular season only.</div>` : ""}
+      <h4>Awards</h4>${awardRows ? `<table class="cmptab">${awardRows}</table>` : `<div class="muted">Neither has won an award or made an All-Star team yet.</div>`}
+      ${fielding}
+      <p class="muted small" style="margin-top:10px">The better value in each row is highlighted. Click a name to open his profile.</p>`;
+  }
+  document.getElementById("player-body").innerHTML = `<button class="close" onclick="document.getElementById('player').close()" aria-label="Close">&times;</button><div class="cmpwrap">${top}${body}</div>`;
+  const dlg = document.getElementById("player");
+  if (!dlg.open) dlg.showModal();
+}
+document.addEventListener("input", (e) => {
+  if (!e.target.matches || !e.target.matches("[data-cmpsearch]") || !ui.cmp) return;
+  ui.cmp.q = e.target.value;
+  const box = document.getElementById("cmphits");
+  if (box) box.innerHTML = cmpMatches(ui.cmp.q);
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key !== "Enter" || !e.target.matches || !e.target.matches("[data-cmpsearch]")) return;
+  const first = document.querySelector("#cmphits .cmphit");
+  if (first) { e.preventDefault(); first.click(); }
+});
 
 // ---------- your schedule ----------
 function comingUp(n) {
@@ -5475,6 +5704,11 @@ document.addEventListener("click", async (e) => {
     else if (kind === "lucols") { ui.luCols = act.dataset.cols; render(); }
     else if (kind === "devall") { ui.devAll = !ui.devAll; render(); }
     else if (kind === "farmmove") { await api("/api/farm-move", { name: act.dataset.name, to: act.dataset.to }); }
+    else if (kind === "compare") { compareOpen(act.dataset.name); return; }
+    else if (kind === "cmppick") { ui.cmp.b = act.dataset.name; ui.cmp.q = ""; showCompare(); return; }
+    else if (kind === "cmpswap") { const c = ui.cmp; [c.a, c.b] = [c.b, c.a]; showCompare(); return; }
+    else if (kind === "cmpview") { ui.cmp.view = act.dataset.v; showCompare(); return; }
+    else if (kind === "cmpback") { openProfile(ui.cmp.a); return; }
     else if (kind === "pjump") { const to = document.getElementById(act.dataset.to); if (to) to.scrollIntoView({ behavior: "smooth", block: "start" }); }
     else if (kind === "lucancel") { ui.pick = null; render(); }
     else if (kind === "fatab") { ui.faTab = act.dataset.tab; render(); }
